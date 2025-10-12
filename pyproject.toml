@@ -1,0 +1,19 @@
+[tool.poetry] # Project metadata. tool.poetry section contains metadata about the project.
+name = "llm-engineering"
+version = "0.1.0"
+description = ""
+authors = ["iusztinpaul <p.b.iusztin@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies] # Project dependencies
+python = "^3.11"
+requests = "^2.25.1" # requests library for HTTP requests. it is used for making HTTP requests in Python.
+numpy = "^1.19.0"
+fastapi = "^0.119.0"
+
+[build-system] # Build system configuration
+requires = ["poetry-core"] # Specifies the build system requirements.
+build-backend = "poetry.core.masonry.api" # Specifies the build backend to use.
+                                          # poetry-core is a lightweight build backend for Poetry.  
