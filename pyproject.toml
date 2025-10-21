@@ -8,12 +8,33 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies] # Project dependencies
-python = "^3.11"
-requests = "^2.25.1" # requests library for HTTP requests. it is used for making HTTP requests in Python.
+python = ">=3.11,<3.13"
 numpy = "^1.19.0"
-fastapi = "^0.119.0"
+fastapi = ">=0.100,<0.116"
+beautifulsoup4 = "^4.14.2"
+zenml = {version = "0.90.0", extras = ["server"]}
+requests = "^2.31"
+loguru = "^0.7.3"
+tqdm = "^4.67.1"
+pymongo = "^4.15.3"
+pydantic-settings = "^2.11.0"
+awscli = "^1.42.54"
+qdrant-client = "^1.15.1"
+sentence-transformers = "^5.1.1"
+langchain-openai = "^1.0.1"
+tiktoken = "^0.12.0"
+langchain-community = "^0.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
 
 [build-system] # Build system configuration
 requires = ["poetry-core"] # Specifies the build system requirements.
 build-backend = "poetry.core.masonry.api" # Specifies the build backend to use.
-                                          # poetry-core is a lightweight build backend for Poetry.  
+                                          # poetry-core is a lightweight build backend for Poetry.
+
+# poe is used to define and run tasks in a simple and consistent way.
+[tool.poe.tasks] # Task definitions for the poe tool
+start = "python main.p" # Task to start the application by running the main module.
+test   = "python -m pytest -q" # Task to run tests using pytest framework.
+format = "ruff format ." # Task to format code using black code formatter.
