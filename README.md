@@ -110,3 +110,23 @@ poetry run python pipelines/digital_data_etl.py
 
 # 3️⃣ Generate sentence embeddings
 poetry run python llm_engineering/application/networks/embeddings.py
+
+
+---
+LLMTowin/
+│
+├── llm_engineering/
+│   ├── application/
+│   │   ├── crawlers/
+│   │   └── networks/
+│   ├── domain/
+│   └── infrastructure/
+│       ├── db/
+│       └── aws/
+│
+├── pipelines/
+│   ├── digital_data_etl.py
+│   └── steps/etl/
+│
+├── pyproject.toml
+└── README.md
