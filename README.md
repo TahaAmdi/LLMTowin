@@ -77,3 +77,36 @@ The RAG system connects three main components:
 ---
 
 ### 🔄 Example Flow
+Example:  
+> “Summarize my most engaging GitHub projects based on semantic similarity.”
+
+The system retrieves your repositories, embeds descriptions, and returns summarized insights using the RAG pipeline.
+
+---
+
+## 🧩 Tech Stack
+
+| Component | Library |
+|------------|----------|
+| Framework | FastAPI, Poetry |
+| Data Storage | MongoDB |
+| Vector DB | Qdrant |
+| Embeddings | SentenceTransformers, CrossEncoder |
+| Tokenization | HuggingFace Transformers |
+| Pipeline Orchestration | ZenML |
+| Logging | Loguru |
+| ETL | BeautifulSoup, TQDM, Requests |
+
+---
+
+## ⚡ Setup & Run
+
+```bash
+# 1️⃣ Install dependencies
+poetry install
+
+# 2️⃣ Run the digital ETL pipeline
+poetry run python pipelines/digital_data_etl.py
+
+# 3️⃣ Generate sentence embeddings
+poetry run python llm_engineering/application/networks/embeddings.py
