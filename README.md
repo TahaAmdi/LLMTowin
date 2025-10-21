@@ -130,3 +130,10 @@ LLMTowin/
 │
 ├── pyproject.toml
 └── README.md
+
+MSc Artificial Intelligence – University of Hull 🇬🇧
+Exploring the intersection of Transformers, RAG systems, and applied AI engineering.
+
+⚖️ License
+
+MIT License © 2025 David AhmadiShahraki
