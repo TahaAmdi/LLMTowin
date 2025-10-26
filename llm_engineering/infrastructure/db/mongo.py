@@ -37,7 +37,7 @@ from llm_engineering.settings import settings
 class MongoDatabaseConnector:
     _instance: MongoClient | None = None
 
-    def __new__(cls, *args, **kwargs) -> MongoClient:
+    def __new__(cls) -> MongoClient:
         if cls._instance is None:
             try:
                 cls._instance = MongoClient(settings.DATABASE_HOST)

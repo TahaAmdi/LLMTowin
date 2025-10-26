@@ -1,10 +1,4 @@
-all = ["application", "domain", "infrastructure", "Settings"]
+from llm_engineering import application, domain, infrastructure
+from llm_engineering.settings import settings
 
-def __getattr__(name):
-    if name == "Settings":
-        from .settings import Settings
-        return Settings
-    elif name in ("application", "domain", "infrastructure"):
-        from importlib import import_module
-        return import_module(f"llm_engineering.{name}")
-    raise AttributeError(name)
+__all__ = ["settings", "application", "domain", "infrastructure"]

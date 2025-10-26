@@ -5,7 +5,6 @@ from typing import Optional
 import numpy as np
 from loguru import logger
 from numpy.typing import NDArray
-from torch import embedding
 
 """
 ───────────────────────────────────────────────

@@ -1,6 +1,3 @@
-import collections
-from pydoc import doc
-from unittest import result
 import uuid
 from abc import ABC
 
@@ -108,7 +105,7 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
 
         # self.model_dump() -> pydantic method to convert model to dict
         """parsed means the data converted to mongo format"""
-        parsed = self.model_dump(exclude_unset=exclude_unset, by_alias=by_alias, **kwargs)
+        parsed = self._model_dump(exclude_unset=exclude_unset, by_alias=by_alias, **kwargs)
 
         if "_id" not in parsed and "id" in parsed:
             parsed["_id"] = str(parsed.pop("id")) # convert UUID to str
@@ -119,7 +116,7 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
 
         return parsed
     
-    def model_dump(self:T, **kwargs) -> dict:
+    def _model_dump(self:T, **kwargs) -> dict:
         """Override pydantic's model_dump to convert "_id" back to "id"."""
         dict_ = super().model_dump(**kwargs) # call the parent class's model_dump method
 
@@ -180,17 +177,18 @@ class NoSQLBaseDocument(BaseModel, Generic[T], ABC):
             return False
         
     @classmethod
-    def find(cls:Type[T], **filter_options) -> list[T]:
-        """Find documents in the database based on filter options."""
+    def find(cls: Type[T], **filter_options) -> T | None:
         collection = _database[cls.get_collection_name()]
         try:
-            instances = collection.find(filter_options)
-            # [output |> For Loop |> If Statement |> Assignment Expression]
-            return [document for instance in instances if (document := cls.from_mongo(instance)) is not None]
-        
+            instance = collection.find_one(filter_options)
+            if instance:
+                return cls.from_mongo(instance)
+
+            return None
         except errors.OperationFailure:
-            logger.exception(f"Failed to find documents with filter options: {filter_options}")
-            raise
+            logger.error("Failed to retrieve document")
+
+            return None
 
     @classmethod
     def bulk_find(cls: Type[T], **filter_options) -> list[T]:

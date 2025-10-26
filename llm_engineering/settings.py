@@ -14,7 +14,7 @@ from zenml.exceptions import EntityExistsError
 class Settings(BaseSettings):
     # SettingsConfigDict is used to configure pydantic settings behavior,
     # such as specifying an environment file to load variables from.
-    model_cobfig = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 # --- Required settings even when working locally. ---
 
