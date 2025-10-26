@@ -32,7 +32,6 @@ class CustomArticleCrawler(BaseCrawler):
         doc_transformed = docs_transformed[0]
 
         content = {
-            "Title": doc_transformed.metadata.get("title"),
             "Subtitle": doc_transformed.metadata.get("description"),
             "Content": doc_transformed.page_content,
             "language": doc_transformed.metadata.get("language"),

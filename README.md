@@ -1,253 +1,139 @@
-Below is a **Markdown-ready** Poetry cheat sheet you can paste directly into your `README.md`.
+# 🧠 LLMTowin  
+> Retrieval-Augmented LLM System for Intelligent Content Crawling & Semantic Search
+
+LLMTowin is a modular LLM engineering framework designed to crawl, embed, and semantically retrieve user-generated content from multiple sources (LinkedIn, GitHub, Medium, etc.) using a Retrieval-Augmented Generation (RAG) pipeline.  
+
+It follows the architectural patterns described in *The LLM Engineers Handbook*, combining:
+- MongoDB for NoSQL persistence  
+- Qdrant for vector similarity search  
+- SentenceTransformers for embeddings  
+- FastAPI and Poetry for deployment and environment management  
 
 ---
 
-# 🧰 Poetry Cheat Sheet — Install, Use, Troubleshoot (Windows-friendly)
+## 🚀 Features
 
-## 0) Health checks
+### 🕷️ Crawlers  
+Located in llm_engineering/application/crawlers/  
 
-```powershell
-poetry --version
-poetry env info
-poetry show --top-level
-poetry run python -V
-poetry run python -c "import sys,site; print(sys.version); print(site.getsitepackages())"
-```
+Crawlers extract public data from multiple platforms:
+- linkedin.py → posts, comments, and profiles  
+- medium.py → articles and topics  
+- github.py → repositories and project metadata  
 
----
-
-## 1) Install & PATH (Windows)
-
-**Common fix when `poetry` isn’t recognized**
-
-```powershell
-(Get-Command poetry).Source
-where poetry
-# If needed, add to PATH (session)
-$env:Path += ";$env:APPDATA\Python\Scripts"; $env:Path += ";$env:APPDATA\pypoetry\venv\Scripts"
-```
-
-**Install specific Poetry version with pip**
-
-```powershell
-py -3 -m pip install --user "poetry==1.8.4"   # or 1.8.3
-poetry --version
-```
-
-**If `setx` errors because PATH is long**
-
-```powershell
-# Set only the target path (avoids “Default option is not allowed more than '2' time(s)”)
-setx PATH "C:\Users\<User>\AppData\Roaming\Python\Scripts"
-```
+A central dispatcher.py orchestrates these crawlers and passes the data to the ETL pipeline.
 
 ---
 
-## 2) Python version & venv
+### 🧩 Networks  
+Located in llm_engineering/application/networks/
 
-**Version constraints in `pyproject.toml`**
+- embeddings.py → loads a SentenceTransformer model (default: `all-MiniLM-L6-v2`) and generates embeddings.  
+- base.py → defines a SingletonMeta class to prevent redundant model loading across the system.  
 
-```toml
-[tool.poetry.dependencies]
-# choose one:
-python = "^3.11"      # >=3.11,<4.0
-# python = "~3.11"    # >=3.11,<3.12
-# python = "3.11.8"   # exactly 3.11.8
-```
+Supported models:
+- SentenceTransformers  
+- CrossEncoders  
+- HuggingFace AutoTokenizer  
 
-**Create venv with a specific Python**
+---
 
-```powershell
-poetry env use 3.11.8
-# or exact path:
-poetry env use "C:\Users\<User>\AppData\Local\Programs\Python\Python311\python.exe"
-```
+### 🧠 Domain Models  
+Located in llm_engineering/domain/
 
-**Keep venv inside the project (`.venv/`)**
+Defines core data abstractions and shared types:
+- documents.py → Base document structure for MongoDB  
+- types.py → Enum (`DataCategory`) for dataset tags like posts, articles, repositories  
+- exceptions.py → Custom exception handling and structured logging  
 
-```powershell
-poetry config virtualenvs.in-project true --local
-poetry env remove python
-poetry env use 3.11.8
+---
+
+### 🧱 Infrastructure  
+Located in llm_engineering/infrastructure/db/
+
+- mongo.py → manages database connections and persistence operations  
+- qdrant.py → handles vector DB interactions and similarity searches  
+
+---
+
+### ⚙️ Pipelines  
+Located in pipelines/ and steps/etl/
+
+Implements the ETL (Extract–Transform–Load) logic:  
+- digital_data_etl.py → orchestrates the end-to-end data ingestion & embedding pipeline  
+- crawl_links.py → manages crawl queue and scheduling  
+- get_or_create_user.py → ensures user data is created or fetched across MongoDB & Qdrant  
+
+---
+
+## 🧬 RAG Pipeline Overview
+
+The RAG system connects three main components:
+
+1. Ingestion Pipeline → crawls and embeds external data into Qdrant  
+2. Retrieval Pipeline → queries Qdrant for semantically relevant vectors  
+3. Generation Pipeline → injects retrieved data into the LLM prompt to generate contextual responses  
+
+---
+
+### 🔄 Example Flow
+Example:  
+> “Summarize my most engaging GitHub projects based on semantic similarity.”
+
+The system retrieves your repositories, embeds descriptions, and returns summarized insights using the RAG pipeline.
+
+---
+
+## 🧩 Tech Stack
+
+| Component | Library |
+|------------|----------|
+| Framework | FastAPI, Poetry |
+| Data Storage | MongoDB |
+| Vector DB | Qdrant |
+| Embeddings | SentenceTransformers, CrossEncoder |
+| Tokenization | HuggingFace Transformers |
+| Pipeline Orchestration | ZenML |
+| Logging | Loguru |
+| ETL | BeautifulSoup, TQDM, Requests |
+
+---
+
+## ⚡ Setup & Run
+
+```bash
+# 1️⃣ Install dependencies
 poetry install
-poetry env info   # Path should be .\.venv
-```
+
+# 2️⃣ Run the digital ETL pipeline
+poetry run python pipelines/digital_data_etl.py
+
+# 3️⃣ Generate sentence embeddings
+poetry run python llm_engineering/application/networks/embeddings.py
+
 
 ---
+LLMTowin/
+│
+├── llm_engineering/
+│   ├── application/
+│   │   ├── crawlers/
+│   │   └── networks/
+│   ├── domain/
+│   └── infrastructure/
+│       ├── db/
+│       └── aws/
+│
+├── pipelines/
+│   ├── digital_data_etl.py
+│   └── steps/etl/
+│
+├── pyproject.toml
+└── README.md
 
-## 3) Dependencies & locking
+MSc Artificial Intelligence – University of Hull 🇬🇧
+Exploring the intersection of Transformers, RAG systems, and applied AI engineering.
 
-**Concepts**
+⚖️ License
 
-* `pyproject.toml` = what you want (ranges).
-* `poetry.lock` = exactly what’s installed (pinned, reproducible).
-
-**Commands**
-
-```powershell
-poetry install                 # from lock; creates lock if missing
-poetry add fastapi             # add & update toml+lock
-poetry remove fastapi          # remove
-poetry update fastapi          # update within constraints
-poetry lock --no-update        # rebuild lock from toml without bumping versions
-```
-
-> Example: with Python 3.11, `numpy` must be ≥1.26. If you wrote `^1.19`, the resolver will pick a compatible higher version (e.g., 1.26.4) and pin it in the lock.
-
----
-
-## 4) Running code in the venv
-
-**Three reliable ways**
-
-```powershell
-# A) enter the venv shell
-poetry shell
-python script.py
-exit
-
-# B) run without entering
-poetry run python script.py
-
-# C) activate .venv manually (Windows PowerShell)
-.\.venv\Scripts\Activate.ps1
-python script.py
-```
-
-**Fix for `ModuleNotFoundError: No module named 'X'`**
-Run using one of the methods above (you were likely using the global Python).
-
----
-
-## 5) VS Code setup (per-project)
-
-Create `.vscode/settings.json`:
-
-```json
-{
-  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-  "python.terminal.activateEnvironment": true
-}
-```
-
-* Use **Run Python File** / **F5** (Python extension).
-* If you use **Code Runner** and want it to use `.venv`:
-
-```json
-{
-  "code-runner.runInTerminal": true,
-  "code-runner.executorMap": {
-    "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe -u"
-  }
-}
-```
-
----
-
-## 6) Frequent warnings & quick fixes
-
-**Warning:** *“The current project could not be installed: No file/folder found for package …”*
-
-* You’re trying to install the project as a package without package structure.
-
-  * If you only want dependency management:
-
-    ```toml
-    [tool.poetry]
-    package-mode = false
-    ```
-
-    or run `poetry install --no-root`
-  * If you want a package, use a `src` layout:
-
-    ```
-    src/your_pkg/__init__.py
-    ```
-
-    and in `pyproject.toml`:
-
-    ```toml
-    packages = [{ include = "your_pkg", from = "src" }]
-    ```
-
-**Error:** *“Group(s) not found: aws (via --without)”*
-
-* By default only the main group installs. Use:
-
-  ```powershell
-  poetry install               # main only
-  poetry install --with dev    # add dev
-  poetry install --with dev,aws
-  ```
-
-**`poetry show python` says not found**
-
-* Python isn’t a PyPI package. See the interpreter used with:
-
-  ```powershell
-  poetry env info
-  ```
-
-**Installed version differs from `toml` range**
-
-* The lock wins. Align by:
-
-  ```powershell
-  poetry add fastapi==0.110.0
-  # or
-  poetry update fastapi
-  ```
-
----
-
-## 7) Handy snippets
-
-**List versions programmatically**
-
-```python
-from importlib.metadata import version, PackageNotFoundError
-for name in ["numpy","requests","fastapi","pydantic","starlette"]:
-    try:
-        print(name, version(name))
-    except PackageNotFoundError:
-        print(name, "NOT INSTALLED")
-```
-
-**Show current Python path & site-packages**
-
-```powershell
-poetry run python -c "import sys,site; print(sys.executable); print(site.getsitepackages())"
-```
-
-**Switch quickly between Pythons**
-
-```powershell
-poetry env use 3.11.8
-poetry env use "C:\Path\To\Another\python.exe"
-```
-
----
-
-## 8) Minimal `pyproject.toml` (dependency-only)
-
-```toml
-[tool.poetry]
-name = "my-proj"
-version = "0.1.0"
-readme = "README.md"
-package-mode = false
-
-[tool.poetry.dependencies]
-python = "~3.11"
-fastapi = "^0.119.0"
-numpy = "^1.26"
-requests = "^2.32"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-```
-
----
-
-**Tip:** For rock-solid reproducibility, keep `.venv` inside the project and always run via VS Code’s selected interpreter or `poetry run …`.
+MIT License © 2025 David AhmadiShahraki
